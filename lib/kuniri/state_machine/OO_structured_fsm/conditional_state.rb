@@ -25,8 +25,6 @@ module StateMachine
           conditional_capture
         elsif @language.repetitionHandler.get_repetition(pLine)
           repetition_capture
-        elsif @language.aggregationHandler.get_aggregation(pLine)
-          aggregation_capture
         else
           return
         end
@@ -90,7 +88,6 @@ module StateMachine
         def reset_flag
           return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::ConditionalState
           return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::RepetitionState
-          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::AggregationState
 
           @language.flagFunctionBehaviour = StateMachine::NONE_HANDLING_STATE
         end
