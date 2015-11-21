@@ -59,6 +59,10 @@ module StateMachine
 
         # @see OOStructuredState
         def reset_flag
+          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::ConditionalState
+          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::RepetitionState
+          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::AggregationState
+
           @language.flagFunctionBehaviour = StateMachine::NONE_HANDLING_STATE
         end
 

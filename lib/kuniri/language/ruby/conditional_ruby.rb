@@ -24,6 +24,20 @@ module Languages
           return conditionalCaptured
         end
 
+        def get_internal_conditional(pLine)
+
+          result = detect_internal_conditional(pLine)
+          return nil unless result
+
+          conditionalCaptured = Languages::ConditionalData.new
+          conditionalCaptured.type = conditional_type(pLine)
+
+          conditionalCaptured.expression = get_expression(result)
+
+          return conditionalCaptured
+
+        end
+
       protected
 
         # Override.
@@ -41,6 +55,15 @@ module Languages
           return pLine.scan(regexExp)[0].join("") if regexExp =~ pLine
 
           return nil
+        end
+
+        def detect_internal_conditional(pLine)
+          result = detect_conditional(pLine)
+
+          regexExp = /^\s*elsif\s+(.*)/
+          return nil if regexExp =~ pLine
+
+          return result
         end
 
         # Override

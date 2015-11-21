@@ -20,8 +20,32 @@ module StateMachine
         @language = pLanguage
       end
 
-        def handle_line(pLine)
+      def handle_line(pLine)
+        if @language.conditionalHandler.get_internal_conditional(pLine)
+          conditional_capture
+        elsif @language.repetitionHandler.get_repetition(pLine)
+          repetition_capture
+        elsif @language.aggregationHandler.get_aggregation(pLine)
+          aggregation_capture
+        else
+          return
         end
+      end
+
+      # @see OOStructuredState
+      def conditional_capture
+        @language.set_state(@language.conditionalState)
+      end
+
+      # @see OOStructuredState
+      def repetition_capture
+        @language.set_state(@language.repetitionState)
+      end
+
+      # @see OOStructuredState
+      def aggregation_capture
+        @language.set_state(@language.aggregationState)
+      end
 
       # @see OOStructuredState
       def method_capture
@@ -46,11 +70,15 @@ module StateMachine
         conditional = @language.conditionalHandler.get_conditional(pLine)
         flag = @language.flagFunctionBehaviour
 
-        get_add_conditional_lambda(MAP_STATE[flag]).call(conditional,
-          pElementFile)
+        if(conditional)
+          get_add_conditional_lambda(MAP_STATE[flag]).call(conditional,
+            pElementFile)
+        end
 
         has_end_of_block = @language.endBlockHandler.has_end_of_block?(pLine)
-        get_capture_lambda(MAP_STATE[flag]).call(has_end_of_block)
+        if(has_end_of_block)
+          get_capture_lambda(MAP_STATE[flag]).call(has_end_of_block)
+        end
 
         return pElementFile
 
@@ -60,6 +88,10 @@ module StateMachine
 
         # @see OOStructuredState
         def reset_flag
+          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::ConditionalState
+          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::RepetitionState
+          return if @language.previousState[-1].is_a? StateMachine::OOStructuredFSM::AggregationState
+
           @language.flagFunctionBehaviour = StateMachine::NONE_HANDLING_STATE
         end
 
